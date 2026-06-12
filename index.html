@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CryptoMustache Signals</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #0a0a0a; color: #fff; }
+        .container { text-align: center; }
+        .signal-card { background: #1a1a1a; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #f5a623; }
+        .button { background: #f5a623; color: #0a0a0a; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 10px; font-weight: bold; }
+        .stats { display: flex; justify-content: space-around; margin: 30px 0; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 32px; font-weight: bold; color: #f5a623; }
+        .footer { margin-top: 50px; font-size: 12px; color: #666; }
+        a { color: #f5a623; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎩 CryptoMustache Signals</h1>
+        <p>Algorithmic trading signals • RSI + Moving Average strategy</p>
+        
+        <div class="signal-card">
+            <h3>📊 Latest Signal</h3>
+            <div id="latest-signal">Loading...</div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="win-rate">--%</div>
+                <div>Win Rate</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="total-trades">--</div>
+                <div>Total Trades</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="avg-pnl">--%</div>
+                <div>Avg PnL</div>
+            </div>
+        </div>
+        
+        <a href="https://t.me/CryptoMustache" class="button">📱 Join Telegram</a>
+        <a href="https://twitter.com/_cryptomustache" class="button">🐦 Follow on X</a>
+        
+        <div class="footer">
+            <p>⚠️ Educational content only. No profit guarantees. Trading involves risk.</p>
+            <p><a href="/terms">Terms of Use</a> | <a href="/privacy">Privacy Policy</a></p>
+        </div>
+    </div>
+    
+    <script>
+        // Fetch latest signal from your bot
+        fetch('https://api.telegram.org/bot8806850111:AAFQHvBRAdAOnomr5aANuXCc7x5gev9T9LM/getUpdates?limit=1')
+            .then(r => r.json())
+            .then(data => {
+                const msg = data.result?.find(u => u.channel_post?.text?.includes('NEW MUSTACHE SIGNAL'));
+                if (msg) {
+                    document.getElementById('latest-signal').innerHTML = `<pre>${msg.channel_post.text.substring(0, 300)}</pre>`;
+                } else {
+                    document.getElementById('latest-signal').innerHTML = 'Waiting for next signal...';
+                }
+            })
+            .catch(() => {
+                document.getElementById('latest-signal').innerHTML = 'Check Telegram for latest signals';
+            });
+    </script>
+</body>
+</html>
