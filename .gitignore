@@ -2,3 +2,5 @@ config/.env
 *.env
 *.gpg
 Miniforge3-Linux-x86_64.sh
+Miniforge3-Linux-x86_64.sh
+packages.microsoft.gpg
