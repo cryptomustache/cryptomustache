@@ -56,9 +56,11 @@
         .news-card .news-votes { font-size:11px; color:#666; }
 
         /* Filter bar */
-        .filter-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:15px; }
-        .filter-btn { padding:6px 14px; border-radius:20px; border:1px solid rgba(245,166,35,0.3); background:transparent; color:#aaa; cursor:pointer; font-size:12px; transition:all 0.2s; }
+        .filter-bar { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-bottom:15px; }
+        .filter-btn { padding:8px 6px; border-radius:10px; border:1px solid rgba(245,166,35,0.3); background:rgba(26,26,46,0.8); color:#aaa; cursor:pointer; font-size:12px; transition:all 0.2s; text-align:center; }
         .filter-btn:hover, .filter-btn.active { background:#f5a623; color:#0a0a0a; border-color:#f5a623; font-weight:bold; }
+        .news-card .news-img { width:100%; height:160px; object-fit:cover; border-radius:8px; margin-bottom:10px; background:#111; }
+        .news-card .news-img-placeholder { width:100%; height:120px; border-radius:8px; margin-bottom:10px; background:linear-gradient(135deg,#1a1a2e,#0a0a0a); display:flex; align-items:center; justify-content:center; font-size:40px; }
 
         .loading { text-align:center; color:#555; padding:40px; font-size:14px; }
         .last-update { font-size:11px; color:#444; text-align:right; margin-bottom:10px; }
@@ -221,8 +223,21 @@ async function loadNews() {
                 const pubDate = item.querySelector('pubDate')?.textContent || '';
                 const desc = item.querySelector('description')?.textContent?.replace(/<[^>]*>/g,'').substring(0,150) || '';
                 
+                // Try to get image from RSS
+                let image = '';
+                const enclosure = item.querySelector('enclosure');
+                const mediaContent = item.querySelector('content');
+                const mediaThumbnail = item.querySelector('thumbnail');
+                if(enclosure?.getAttribute('type')?.startsWith('image')) image = enclosure.getAttribute('url') || '';
+                else if(mediaContent?.getAttribute('url')) image = mediaContent.getAttribute('url');
+                else if(mediaThumbnail?.getAttribute('url')) image = mediaThumbnail.getAttribute('url');
+                else {
+                    const imgMatch = item.querySelector('description')?.textContent?.match(/src="([^"]+\.(jpg|jpeg|png|webp))"/i);
+                    if(imgMatch) image = imgMatch[1];
+                }
+                
                 if(title && link) {
-                    newsItems.push({ title, link, pubDate, source, desc });
+                    newsItems.push({ title, link, pubDate, source, desc, image });
                 }
             });
         } catch(e) {
@@ -234,6 +249,20 @@ async function loadNews() {
     renderNews(allNews);
 }
 
+function getCryptoEmoji(title) {
+    const t = title.toLowerCase();
+    if(t.includes('bitcoin') || t.includes('btc')) return '₿';
+    if(t.includes('ethereum') || t.includes('eth')) return 'Ξ';
+    if(t.includes('solana') || t.includes('sol')) return '◎';
+    if(t.includes('bnb') || t.includes('binance')) return '⬡';
+    if(t.includes('xrp') || t.includes('ripple')) return '✕';
+    if(t.includes('doge') || t.includes('dogecoin')) return 'Ð';
+    if(t.includes('defi')) return '🏦';
+    if(t.includes('nft')) return '🖼️';
+    if(t.includes('regulation') || t.includes('sec')) return '⚖️';
+    return '📰';
+}
+
 function renderNews(items) {
     const grid = document.getElementById('news-grid');
     if(!items.length) {
@@ -242,7 +271,12 @@ function renderNews(items) {
     }
     grid.innerHTML = items.slice(0,50).map(item => {
         const tags = detectTags(item.title);
+        const emoji = getCryptoEmoji(item.title);
+        const imgHtml = item.image 
+            ? `<img class="news-img" src="${item.image}" alt="" onerror="this.style.display='none'" loading="lazy">`
+            : `<div class="news-img-placeholder">${emoji}</div>`;
         return `<div class="news-card">
+            ${imgHtml}
             <div class="news-source">${item.source}</div>
             <div class="news-title"><a href="${item.link}" target="_blank" rel="noopener">${item.title}</a></div>
             <div class="news-meta">
