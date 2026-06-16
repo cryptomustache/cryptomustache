@@ -118,6 +118,7 @@
         <button class="filter-btn" onclick="filterNews('defi')">🏦 DeFi</button>
         <button class="filter-btn" onclick="filterNews('regulation')">⚖️ Regulation</button>
         <button class="filter-btn" onclick="filterNews('nft')">🖼️ NFT</button>
+        <button class="filter-btn" onclick="filterNews('etf')">📈 ETF</button>
     </div>
 
     <div class="news-grid" id="news-grid">
@@ -133,9 +134,10 @@
 
 <script>
 const RSS_FEEDS = [
-    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://cointelegraph.com/rss'),
-    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://decrypt.co/feed'),
-    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://coindesk.com/arc/outboundfeeds/rss/'),
+    'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fcointelegraph.com%2Frss',
+    'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fdecrypt.co%2Ffeed',
+    'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fcoindoo.com%2Ffeed%2F',
+    'https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fnewsbtc.com%2Ffeed%2F',
 ];
 
 let allNews = [];
@@ -204,44 +206,47 @@ function renderTicker() {
 
 async function loadNews() {
     const newsGrid = document.getElementById('news-grid');
-    newsGrid.innerHTML = '<div class="loading">Loading news from multiple sources...</div>';
+    newsGrid.innerHTML = '<div class="loading">Loading news...</div>';
     
     const newsItems = [];
     
-    for(const feedUrl of RSS_FEEDS) {
+    // CoinGecko news (free, no key needed)
+    try {
+        const r = await fetch('https://api.coingecko.com/api/v3/news?per_page=50');
+        const data = await r.json();
+        const items = data.data || data || [];
+        items.forEach(item => {
+            newsItems.push({
+                title: item.title || item.name || '',
+                link: item.url || item.link || '#',
+                pubDate: item.updated_at ? new Date(item.updated_at * 1000).toISOString() : new Date().toISOString(),
+                source: item.author?.name || item.source || 'CoinGecko News',
+                desc: item.description || '',
+                image: item.thumb_2x || item.thumb || item.image || ''
+            });
+        });
+    } catch(e) {
+        console.log('CoinGecko news error:', e);
+    }
+
+    // Fallback: CryptoCompare news (free)
+    if(newsItems.length === 0) {
         try {
-            const r = await fetch(feedUrl);
-            const text = await r.text();
-            const parser = new DOMParser();
-            const xml = parser.parseFromString(text, 'text/xml');
-            const items = xml.querySelectorAll('item');
-            const source = xml.querySelector('title')?.textContent?.split('|')[0]?.trim() || 'Crypto News';
-            
+            const r = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN&sortOrder=latest');
+            const data = await r.json();
+            const items = data.Data || [];
             items.forEach(item => {
-                const title = item.querySelector('title')?.textContent || '';
-                const link = item.querySelector('link')?.textContent || '#';
-                const pubDate = item.querySelector('pubDate')?.textContent || '';
-                const desc = item.querySelector('description')?.textContent?.replace(/<[^>]*>/g,'').substring(0,150) || '';
-                
-                // Try to get image from RSS
-                let image = '';
-                const enclosure = item.querySelector('enclosure');
-                const mediaContent = item.querySelector('content');
-                const mediaThumbnail = item.querySelector('thumbnail');
-                if(enclosure?.getAttribute('type')?.startsWith('image')) image = enclosure.getAttribute('url') || '';
-                else if(mediaContent?.getAttribute('url')) image = mediaContent.getAttribute('url');
-                else if(mediaThumbnail?.getAttribute('url')) image = mediaThumbnail.getAttribute('url');
-                else {
-                    const imgMatch = item.querySelector('description')?.textContent?.match(/src="([^"]+\.(jpg|jpeg|png|webp))"/i);
-                    if(imgMatch) image = imgMatch[1];
-                }
-                
-                if(title && link) {
-                    newsItems.push({ title, link, pubDate, source, desc, image });
-                }
+                newsItems.push({
+                    title: item.title || '',
+                    link: item.url || '#',
+                    pubDate: new Date(item.published_on * 1000).toISOString(),
+                    source: item.source_info?.name || item.source || 'CryptoCompare',
+                    desc: item.body?.substring(0, 150) || '',
+                    image: item.imageurl || ''
+                });
             });
         } catch(e) {
-            console.log('Feed error:', e);
+            console.log('CryptoCompare error:', e);
         }
     }
     
