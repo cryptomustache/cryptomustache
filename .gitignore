@@ -4,3 +4,5 @@ config/.env
 Miniforge3-Linux-x86_64.sh
 Miniforge3-Linux-x86_64.sh
 packages.microsoft.gpg
+*.bak
+tweepy
