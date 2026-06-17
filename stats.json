@@ -1,28 +1,13 @@
 {
-  "last_updated": "2026-06-15",
+  "last_updated": "2026-06-17 00:00 UTC",
+  "track_record_start": null,
   "summary": {
-    "win_rate": 62,
-    "total_trades": 127,
-    "avg_pnl": 1.8,
-    "max_drawdown": -12,
-    "total_return": 34.5
+    "closed_signals": 0,
+    "open_signals": 0,
+    "win_rate": 0,
+    "avg_pnl": 0,
+    "total_return": 0
   },
-  "last_signal": {
-    "action": "LONG",
-    "entry": 61234,
-    "tp1": 63000,
-    "tp2": 64500,
-    "sl": 59500,
-    "reason": "RSI oversold + MA7 > MA25",
-    "date": "2026-06-15"
-  },
-  "recent_trades": [
-    {"date": "2026-06-14", "action": "LONG", "entry": 60100, "exit": 63000, "pnl": 4.8, "result": "WIN"},
-    {"date": "2026-06-12", "action": "SHORT", "entry": 62500, "exit": 61000, "pnl": 2.4, "result": "WIN"},
-    {"date": "2026-06-10", "action": "LONG", "entry": 59800, "exit": 58200, "pnl": -3.0, "result": "LOSS"},
-    {"date": "2026-06-08", "action": "LONG", "entry": 58000, "exit": 61500, "pnl": 6.0, "result": "WIN"},
-    {"date": "2026-06-05", "action": "SHORT", "entry": 63000, "exit": 64000, "pnl": -3.0, "result": "LOSS"},
-    {"date": "2026-06-03", "action": "LONG", "entry": 57500, "exit": 60000, "pnl": 4.3, "result": "WIN"},
-    {"date": "2026-06-01", "action": "SHORT", "entry": 61000, "exit": 59500, "pnl": 2.5, "result": "WIN"}
-  ]
+  "recent_trades": [],
+  "disclaimer": "Performance teorica baseada nos precos de entrada/saida de cada sinal (Binance BTCUSDT, velas 1h). Nao inclui fees nem slippage. Nao e aconselhamento financeiro. Trading envolve risco de perda total. Resultados passados nao garantem resultados futuros."
 }
